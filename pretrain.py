@@ -57,7 +57,7 @@ def train(args):
     true_prob_s, true_prob_o = utils.get_true_distribution(train_data, num_nodes)
 
     epoch = 0
-    loss_small = 10000
+    loss_small = np.inf
     while True:
         model.train()
         if epoch == args.max_epochs:

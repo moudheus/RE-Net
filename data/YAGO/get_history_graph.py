@@ -4,6 +4,7 @@ from collections import defaultdict
 import pickle
 import dgl
 import torch
+from tqdm import tqdm
 
 
 def load_quadruples(inPath, fileName, fileName2=None):
@@ -74,9 +75,8 @@ def load_quadruples(inPath, fileName, fileName2=None):
 
 
 def get_data_with_t(data, tim):
-    x = data[np.where(data[3] == tim)].copy()
-    x = np.delete(x, 3, 1) # drops 3rd column
-    return x
+    triples = [[quad[0], quad[1], quad[2]] for quad in data if quad[3] == tim]
+    return np.array(triples)
 
 
 def comp_deg_norm(g):
@@ -134,14 +134,14 @@ o_his_cache = [[] for _ in range(num_e)]
 s_his_cache_t = [None for _ in range(num_e)]
 o_his_cache_t = [None for _ in range(num_e)]
 
-for tim in train_times:
-    print(str(tim)+'\t'+str(max(train_times)))
+for tim in tqdm(train_times):
+#    print(str(tim)+'\t'+str(max(train_times)))
     data = get_data_with_t(train_data, tim)
     graph_dict_train[tim] = get_big_graph(data, num_r)
 
-for i, train in enumerate(train_data):
-    if i % 10000 == 0:
-        print("train", i, len(train_data))
+for i, train in tqdm(enumerate(train_data)):
+#    if i % 10000 == 0:
+#        print("train", i, len(train_data))
     # if i == 10000:
     #     break
     t = train[3]
@@ -208,9 +208,9 @@ o_history_data_dev = [[] for _ in range(len(dev_data))]
 s_history_data_dev_t = [[] for _ in range(len(dev_data))]
 o_history_data_dev_t = [[] for _ in range(len(dev_data))]
 
-for i, dev in enumerate(dev_data):
-    if i % 10000 == 0:
-        print("valid", i, len(dev_data))
+for i, dev in tqdm(enumerate(dev_data)):
+#    if i % 10000 == 0:
+#        print("valid", i, len(dev_data))
     t = dev[3]
     if latest_t != t:
         for ee in range(num_e):
@@ -265,9 +265,9 @@ o_history_data_test = [[] for _ in range(len(test_data))]
 s_history_data_test_t = [[] for _ in range(len(test_data))]
 o_history_data_test_t = [[] for _ in range(len(test_data))]
 
-for i, test in enumerate(test_data):
-    if i % 10000 == 0:
-        print("test", i, len(test_data))
+for i, test in tqdm(enumerate(test_data)):
+#    if i % 10000 == 0:
+#        print("test", i, len(test_data))
     t = test[3]
     if latest_t != t:
         for ee in range(num_e):
