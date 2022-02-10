@@ -159,10 +159,10 @@ class RGCNAggregator(nn.Module):
                 s_embed_seq_tensor_r = self.dropout(s_embed_seq_tensor_r)
 
                 s_packed_input = torch.nn.utils.rnn.pack_padded_sequence(s_embed_seq_tensor,
-                                                                         s_len_non_zero,
+                                                                         s_len_non_zero.cpu(),
                                                                          batch_first=True)
                 s_packed_input_r = torch.nn.utils.rnn.pack_padded_sequence(s_embed_seq_tensor_r,
-                                                                           s_len_non_zero,
+                                                                           s_len_non_zero.cpu(),
                                                                            batch_first=True)
 
         return s_packed_input, s_packed_input_r

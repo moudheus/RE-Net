@@ -1,9 +1,10 @@
 import torch.nn as nn
 import numpy as np
 import torch
-import torch.nn.functional as F
+#import torch.nn.functional as F
 from Aggregator import MeanAggregator, AttnAggregator, RGCNAggregator
-from utils import *
+#from utils import *
+from collections import defaultdict
 import time
 
 
@@ -377,7 +378,7 @@ class RENet(nn.Module):
         sub_pred_comp1 = (sub_pred > sub_pred[s_label]).data.cpu().numpy()
         sub_pred_comp2 = (sub_pred == sub_pred[s_label]).data.cpu().numpy()
         rank_sub = np.sum(sub_pred_comp1) + ((np.sum(sub_pred_comp2) - 1.0) / 2) + 1
-
+        
         return np.array([rank_sub, rank_ob]), loss
 
 
@@ -388,8 +389,8 @@ class RENet(nn.Module):
         loss, sub_pred, ob_pred = self.predict(triplet, s_hist, o_hist, global_model)
         o_label = o
         s_label = s
-        sub_pred = F.sigmoid(sub_pred)
-        ob_pred = F.sigmoid(ob_pred)
+        sub_pred = torch.sigmoid(sub_pred)
+        ob_pred = torch.sigmoid(ob_pred)
 
         ground = ob_pred[o].clone()
 

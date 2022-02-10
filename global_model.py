@@ -1,9 +1,9 @@
 import torch.nn as nn
 import numpy as np
 import torch
-import torch.nn.functional as F
+#import torch.nn.functional as F
 from Aggregator import RGCNAggregator_global
-from utils import *
+from utils import soft_cross_entropy
 import time
 
 

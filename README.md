@@ -29,13 +29,21 @@ If you make use of this code or the RE-Net algorithm in your work, please cite t
 - [Baselines](#Baselines)
 <!-- - [Predictive Performances](#Predictive-performances) -->
 
-## Installation
+## Installation (LEGACY)
 Run the following commands to create a conda environment (assume CUDA10.1):
 ```bash
 conda create -n renet python=3.6 numpy
 conda activate renet
 pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
 conda install -c dglteam "dgl-cuda10.1<0.5"
+```
+
+## Installation (AWS)
+Run the following commands to create a conda environment (assume CUDA10.1):
+```bash
+conda create --name pytorch_p37_renet --clone pytorch_p37
+source activate pytorch_p37_renet
+pip install dgl-cu110 -f https://data.dgl.ai/wheels/repo.html
 ```
 
 ## Train and Test
@@ -67,6 +75,11 @@ python3 train.py -d DATA_NAME --gpu 0 --dropout 0.5 --n-hidden 200 --lr 1e-3 --m
 We are ready to test!
 ```bash
 python3 test.py -d DATA_NAME --gpu 0 --n-hidden 200
+```
+
+Predict (produce a prediction file for all subjects in the test file)
+```bash
+python3 predict.py -d DATA_NAME --gpu 0 --n-hidden 200
 ```
 
 The default hyperparameters give the best performances.

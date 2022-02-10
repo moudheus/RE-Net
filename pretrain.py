@@ -106,7 +106,7 @@ def train(args):
             #                 'latest_time': model.latest_time},
             #                model_state_file)
 
-    print("training done")
+    print("pre-training done")
 
 
 if __name__ == '__main__':

@@ -11,19 +11,10 @@ import pickle
 
 
 def train(args):
-    # load data
-    num_nodes, num_rels = utils.get_total_number('./data/' + args.dataset, 'stat.txt')
-    if args.dataset == 'icews_know':
-        train_data, train_times = utils.load_quadruples('./data/' + args.dataset, 'train.txt')
-        valid_data, valid_times = utils.load_quadruples('./data/' + args.dataset, 'test.txt')
-        test_data, test_times = utils.load_quadruples('./data/' + args.dataset, 'test.txt')
-        total_data, total_times = utils.load_quadruples('./data/' + args.dataset, 'train.txt', 'test.txt')
-    else:
-        train_data, train_times = utils.load_quadruples('./data/' + args.dataset, 'train.txt')
-        valid_data, valid_times = utils.load_quadruples('./data/' + args.dataset, 'valid.txt')
-        test_data, test_times = utils.load_quadruples('./data/' + args.dataset, 'test.txt')
-        total_data, total_times = utils.load_quadruples('./data/' + args.dataset, 'train.txt', 'valid.txt','test.txt')
-
+    
+    print('Loading data')
+    num_nodes, num_rels, train_data, train_times, valid_data, valid_times, test_data, test_times, total_data, total_times = utils.load_data(args.dataset)
+    
     # check cuda
     use_cuda = args.gpu >= 0 and torch.cuda.is_available()
     seed = 999
@@ -41,7 +32,7 @@ def train(args):
     model_state_global_file = 'models/' + args.dataset + '/max' + str(args.maxpool) + 'rgcn_global.pth'
     model_state_file_backup = 'models/' + args.dataset + '/rgcn_backup.pth'
 
-    print("start training...")
+    print("Load models")
     model = RENet(num_nodes,
                     args.n_hidden,
                     num_rels,
@@ -113,7 +104,7 @@ def train(args):
     if use_cuda:
         total_data = total_data.cuda()
 
-
+    print('Training')
     epoch = 0
     best_mrr = 0
     while True:
@@ -130,6 +121,7 @@ def train(args):
                                                                                o_history_shuffle, o_history_t_shuffle, args.batch_size):
             # break
 
+            #print(args.batch_size)
             batch_data = torch.from_numpy(batch_data).long()
             if use_cuda:
                 batch_data = batch_data.cuda()
@@ -142,8 +134,10 @@ def train(args):
             optimizer.zero_grad()
             loss_epoch += loss.item()
 
-
-
+            if args.debug:
+                break
+                
+        #print()
         t3 = time.time()
         print("Epoch {:04d} | Loss {:.4f} | time {:.4f}".
               format(epoch, loss_epoch/(len(train_data)/args.batch_size), t3 - t0))
@@ -234,6 +228,7 @@ if __name__ == '__main__':
     parser.add_argument("--valid-every", type=int, default=1)
     parser.add_argument('--valid', action='store_true')
     parser.add_argument('--raw', action='store_true')
+    parser.add_argument('--debug', action='store_true')
 
 
     args = parser.parse_args()

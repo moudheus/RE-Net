@@ -3,7 +3,7 @@ import os
 import dgl
 import torch
 from collections import defaultdict
-
+from tqdm import trange
 
 def get_total_number(inPath, fileName):
     with open(os.path.join(inPath, fileName), 'r') as fr:
@@ -52,6 +52,22 @@ def load_quadruples(inPath, fileName, fileName2=None, fileName3=None):
 
     return np.asarray(quadrupleList), np.asarray(times)
 
+
+def load_data(dataset, use_test_as_valid=False):
+    num_nodes, num_rels = get_total_number('./data/' + dataset, 'stat.txt')
+    if use_test_as_valid: # eg for dataset 'icews_know':
+        train_data, train_times = load_quadruples('./data/' + dataset, 'train.txt')
+        valid_data, valid_times = load_quadruples('./data/' + dataset, 'test.txt')
+        test_data, test_times = load_quadruples('./data/' + dataset, 'test.txt')
+        total_data, total_times = load_quadruples('./data/' + dataset, 'train.txt', 'test.txt')
+    else:
+        train_data, train_times = load_quadruples('./data/' + dataset, 'train.txt')
+        valid_data, valid_times = load_quadruples('./data/' + dataset, 'valid.txt')
+        test_data, test_times = load_quadruples('./data/' + dataset, 'test.txt')
+        total_data, total_times = load_quadruples('./data/' + dataset, 'train.txt', 'valid.txt', 'test.txt')
+    return num_nodes, num_rels, train_data, train_times, valid_data, valid_times, test_data, test_times, total_data, total_times
+
+
 def make_batch(a,b,c, n):
     # For item i in a range that is a length of l,
     for i in range(0, len(a), n):
@@ -60,7 +76,7 @@ def make_batch(a,b,c, n):
 
 def make_batch2(a,b,c,d,e, n):
     # For item i in a range that is a length of l,
-    for i in range(0, len(a), n):
+    for i in trange(0, len(a), n):
         # Create an index range for l of n items:
         yield a[i:i+n], b[i:i+n], c[i:i+n], d[i:i+n], e[i:i+n]
 
@@ -285,9 +301,10 @@ def get_s_r_embed_rgcn(s_hist_data, s, r, ent_embeds, graph_dict, global_emb):
 
 # assuming pred and soft_targets are both Variables with shape (batchsize, num_of_classes), each row of pred is predicted logits and each row of soft_targets is a discrete distribution.
 def soft_cross_entropy(pred, soft_targets):
-    logsoftmax = torch.nn.LogSoftmax()
+    logsoftmax = torch.nn.LogSoftmax(1)
     pred = pred.type('torch.DoubleTensor').cuda()
     return torch.mean(torch.sum(- soft_targets * logsoftmax(pred), 1))
+
 
 def get_true_distribution(train_data, num_s):
     true_s = np.zeros(num_s)
